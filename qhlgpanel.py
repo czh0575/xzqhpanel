@@ -1,5 +1,5 @@
 import os
-
+# 需要安装pywebio==1.7.1，高于1.8.0会出问题，暂时搁置，等有空解决
 from pywebio import start_server
 from pywebio.input import *
 from pywebio.output import *
@@ -14,7 +14,7 @@ def main():
 
     put_markdown(''' # 行政区划面板生成工具
     
-    本工具用于生成1980-2021年任意连续年份（≥1年）的行政区划名称与代码的长、宽面板，可与任何需要行政区划的数据匹配，可根据需要分层级下载，适用于不同的面板数据。
+    本工具用于生成1980-2023年任意连续年份（≥1年）的行政区划名称与代码的长、宽面板，可与任何需要行政区划的数据匹配，可根据需要分层级下载，适用于不同的面板数据。
     
     ## 使用说明
     
@@ -54,7 +54,7 @@ def main():
     ## 数据来源
     
     - 原始数据来自于`统计年鉴`公众号
-    - 在此基础上对部分错误进行了调整，并将数据更新至2021年
+    - 在此基础上对部分错误进行了调整，并将数据更新至2023年
     - [民政部历年行政区划代码](http://www.mca.gov.cn/article/sj/xzqh/1980/)  |  [民政部历年行政区划统计](http://xzqh.mca.gov.cn/statistics/)
     
     ## 源代码
@@ -91,10 +91,10 @@ def main():
     ## 输入与结果区
     ''')
 
-    styearlist = list(range(1980, 2022))
+    styearlist = list(range(1980, 2024))
     info = input_group("输入相关信息", [
         select('*起始年份*', options= styearlist, name='styear', value = 1980, 
-        onchange=lambda c: input_update('endyear', options=list(range(c, 2022)), value = c), required = True),
+        onchange=lambda c: input_update('endyear', options=list(range(c, 2024)), value = c), required = True),
         select('*终止年份*', options = styearlist, name='endyear', required = True),
         select('*需要输出的层级*', options = ['省级', '地级', '县级'], name = 'cengji', value = ['省级', '地级', '县级'], required = True, multiple = True, onchange = lambda c: input_update('mergeyn', options = '否', value = '否') if c == ['省级'] else input_update('mergeyn', options = ['是', '否'], value = '是')),
         select('*是否需要匹配上级区划代码*', options = ['是', '否'], name = 'mergeyn', value = '是', required = True),
@@ -134,6 +134,7 @@ def main():
             savename_county_wide_excel, content_county_wide_excel = save2es1(countycodewide, styear, endyear, '县级', mergeyn,
                                                                          '宽', 'excel')
             ckcountynum = checknum(countycode, '县级')
+        put_markdown('> 处理完成')  
         put_table([
             ['输出层级', span('长面板（面板匹配使用）', col=2), '宽面板（统计核对使用）'],
             ['省级', put_file(savename_prov_long_excel + '.xlsx', content_prov_long_excel, 'Excel下载') if '省级' in cengji else '', put_file(savename_prov_long_stata + '.dta', content_prov_long_stata, 'Stata下载') if '省级' in cengji else '', put_file(savename_prov_wide_excel + '.xlsx', content_prov_wide_excel, 'Excel下载') if '省级' in cengji else ''],
@@ -321,6 +322,5 @@ def openexcelfile(styear, endyear):
 
 
 if __name__ == '__main__':
-    # excelfilepath = 'http://pan.czhweb.cn:8089/externalLinksController/downloadFileByKey/%E5%8E%BF%E7%BA%A7%E8%A1%8C%E6%94%BF%E5%8C%BA%E5%88%921980-2021.xlsx?dkey=bb0a2141-91cb-499c-a767-2cc3fb86e252'
-    excelfilepath = './resources/县级行政区划1980-2021.xlsx'
-    start_server(main, debug=True, port=9015, cdn = False)
+    excelfilepath = './resources/县级行政区划1980-2023.xlsx'
+    start_server(main, debug=True, port=9015)
