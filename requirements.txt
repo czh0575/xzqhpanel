@@ -1,3 +1,4 @@
-numpy==1.26.4
-pandas==2.2.1
-pywebio==1.7.1
+Flask==3.1.0
+pandas==2.2.3
+PyMySQL==1.1.1
+XlsxWriter==3.2.3
