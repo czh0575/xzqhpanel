@@ -304,6 +304,7 @@ def download_artifact(token, file_key):
     return send_file(io.BytesIO(file['data']), as_attachment=True, download_name=file['name'])
 
 
+app.register_blueprint(bp)
+
 if __name__ == '__main__':
-    app.register_blueprint(bp)
-    app.run(host = '0.0.0.0', debug=False, port = 8716)
+    app.run(host='0.0.0.0', debug=False, port=8716)

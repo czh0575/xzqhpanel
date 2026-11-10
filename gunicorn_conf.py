@@ -1,0 +1,9 @@
+bind = '127.0.0.1:8716'
+workers = 1
+worker_class = 'gthread'
+threads = 4
+timeout = 180
+daemon = True
+pidfile = '/home/czh0575/.run/xzqh.pid'
+accesslog = '/home/czh0575/.logs/xzqh-access.log'
+errorlog = '/home/czh0575/.logs/xzqh-error.log'
