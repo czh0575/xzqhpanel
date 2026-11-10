@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f4f8ff">
+    <title>行政区划面板生成工具 · v2.1</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-shell">
+        <header class="topbar">
+            <a class="brand" href="/xzqh/" aria-label="行政区划面板生成工具首页">
+                <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="m4.5 7.8 7.5 4.4 7.5-4.4M12 12.2V21M8 5.3l8 4.5v4.5l-8 4.5"/></svg></span>
+                <span class="brand-name">区划面板<span>行政区划数据处理</span></span>
+            </a>
+        </header>
+
+        <main>
+            <section class="hero">
+                <h1>行政区划面板生成工具</h1>
+                <p>按年份与行政层级生成长面板、宽面板数据，一键打包下载。</p>
+                <div class="hero-tags"><span>1980—2026 年</span><span>省级 · 地级 · 县级</span><span>Excel / Stata</span></div>
+            </section>
+
+            <section class="workspace">
+                <div class="form-panel">
+                    <div class="panel-heading"><div><span class="step">01</span><h2>设置生成范围</h2></div><span class="required-note">带 <b>*</b> 为必选项</span></div>
+                    <form id="adminCodeForm">
+                        <div class="form-section">
+                            <label class="section-label"><span class="label-icon calendar-icon">▦</span>年份范围 <b>*</b></label>
+                            <div class="year-fields">
+                                <label class="field"><span>起始年份</span><select id="startYear" required>{% for year in range(1980, 2027) %}<option value="{{ year }}" {% if year==1980 %}selected{% endif %}>{{ year }} 年</option>{% endfor %}</select></label>
+                                <span class="year-arrow" aria-hidden="true">→</span>
+                                <label class="field"><span>终止年份</span><select id="endYear" required>{% for year in range(1980, 2027) %}<option value="{{ year }}" {% if year==2026 %}selected{% endif %}>{{ year }} 年</option>{% endfor %}</select></label>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <label class="section-label"><span class="label-icon">▤</span>行政层级 <b>*</b><small>可多选</small></label>
+                            <div class="level-select">
+                                <label class="level-option"><input type="checkbox" name="level[]" value="province"><span class="level-card"><span class="level-symbol">省</span><span class="level-copy"><strong>省级</strong><small>省、自治区、直辖市</small></span><span class="checkmark">✓</span></span></label>
+                                <label class="level-option"><input type="checkbox" name="level[]" value="city"><span class="level-card"><span class="level-symbol">市</span><span class="level-copy"><strong>地级</strong><small>地级市、地区、自治州</small></span><span class="checkmark">✓</span></span></label>
+                                <label class="level-option"><input type="checkbox" name="level[]" value="county"><span class="level-card"><span class="level-symbol">县</span><span class="level-copy"><strong>县级</strong><small>县、县级市、市辖区</small></span><span class="checkmark">✓</span></span></label>
+                            </div>
+                        </div>
+
+                        <div class="form-section parent-section">
+                            <div class="parent-copy"><span class="section-label"><span class="label-icon">⌘</span>匹配上级行政区划</span><small>在结果中附加对应的上级代码与名称</small></div>
+                            <div class="toggle-group">
+                                <label class="toggle-option"><input type="radio" name="parentMatch" value="yes"><span class="toggle-btn">需要</span></label>
+                                <label class="toggle-option"><input type="radio" name="parentMatch" value="no"><span class="toggle-btn">不需要</span></label>
+                            </div>
+                        </div>
+
+                        <div class="action-row"><button type="submit" class="btn primary"><span>生成数据面板</span><span class="btn-arrow">→</span></button><button type="reset" class="btn secondary">重置</button></div>
+                    </form>
+                    <div class="loading-indicator"><span class="spinner"></span><span>正在生成面板，请稍候…</span></div>
+                    <div id="result-area" style="display:none"></div>
+                </div>
+                <aside class="info-panel">
+                    <div class="info-art"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="data-core"><span>1980</span><i>→</i><span>2026</span></div><span class="spark spark-a"></span><span class="spark spark-b"></span></div>
+                    <div class="info-content"><div class="eyebrow">快速说明</div><h3>从区划数据到<br>可用面板，只需几步</h3><ul><li><span>1</span><div><strong>选择时间范围</strong><small>支持 1980—2026 年连续年份</small></div></li><li><span>2</span><div><strong>勾选行政层级</strong><small>支持省级、地级、县级任意组合</small></div></li><li><span>3</span><div><strong>生成并下载</strong><small>包含长表、宽表及 Excel / Stata 文件</small></div></li></ul></div>
+                    <div class="info-foot"><span class="shield">✓</span>数据按所选范围即时生成</div>
+                </aside>
+            </section>
+            <footer>行政区划面板生成工具 <span>·</span> v2.1</footer>
+        </main>
+    </div>
+    <div id="modal" class="modal"><div class="modal-content"><button class="close" aria-label="关闭">×</button><span class="modal-icon">!</span><p id="modal-message"></p></div></div>
+    <div id="format-modal" class="modal format-modal" role="dialog" aria-modal="true" aria-labelledby="format-modal-title">
+        <div class="modal-content format-modal-content">
+            <button class="close" data-close-format aria-label="关闭">×</button>
+            <span class="eyebrow"><span></span>面板格式说明</span>
+            <h2 id="format-modal-title">长面板与宽面板</h2>
+            <div class="format-explanation">
+                <section><h3>长面板</h3><p>每个区划在每个年份单独占一行，适合按“区划代码 + 年份”与其他面板数据合并。</p><div class="format-example"><b>区划</b><b>年份</b><b>名称</b><span>110000</span><span>2024</span><span>北京市</span><span>110000</span><span>2025</span><span>北京市</span></div></section>
+                <section><h3>宽面板</h3><p>每个区划占一行，各年份分别放在不同列，适合横向查看名称变化。</p><div class="format-example wide-example"><b>区划</b><b>2024</b><b>2025</b><span>110000</span><span>北京市</span><span>北京市</span></div></section>
+            </div>
+            <button class="btn secondary format-close" data-close-format>知道了</button>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
